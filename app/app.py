@@ -72,7 +72,7 @@ dataset_option = st.selectbox(
     ("Audi", "Volkswagen", "Porsche", "BMW")
 )
 
-# Load corresponding dataset based on selection
+""" # Load corresponding dataset based on selection
 if dataset_option == "Audi":
     df = load_data('/home/maximilian.laechelin/pwcProject/audi_analyzed.pkl')
 elif dataset_option == "Volkswagen":
@@ -80,7 +80,18 @@ elif dataset_option == "Volkswagen":
 elif dataset_option == "BMW":
     df = load_data('/home/maximilian.laechelin/pwcProject/bmw_analyzed.pkl')
 elif dataset_option == "Porsche":
-    df = load_data('/home/maximilian.laechelin/pwcProject/porsche_analyzed.pkl')
+    df = load_data('/home/maximilian.laechelin/pwcProject/porsche_analyzed.pkl') """
+
+# Load corresponding dataset based on selection
+if dataset_option == "Audi":
+    df = load_data('data/audi_analyzed.pkl')
+elif dataset_option == "Volkswagen":
+    df = load_data('data/volkswagen_analyzed.pkl')
+elif dataset_option == "BMW":
+    df = load_data('data/bmw_analyzed.pkl')
+elif dataset_option == "Porsche":
+    df = load_data('data/porsche_analyzed.pkl')
+
 
 # Define industry events based on the selected dataset
 if dataset_option == "Audi":
