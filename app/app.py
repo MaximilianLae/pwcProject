@@ -72,16 +72,6 @@ dataset_option = st.selectbox(
     ("Audi", "Volkswagen", "Porsche", "BMW")
 )
 
-""" # Load corresponding dataset based on selection
-if dataset_option == "Audi":
-    df = load_data('/home/maximilian.laechelin/pwcProject/audi_analyzed.pkl')
-elif dataset_option == "Volkswagen":
-    df = load_data('/home/maximilian.laechelin/pwcProject/volkswagen_analyzed.pkl')
-elif dataset_option == "BMW":
-    df = load_data('/home/maximilian.laechelin/pwcProject/bmw_analyzed.pkl')
-elif dataset_option == "Porsche":
-    df = load_data('/home/maximilian.laechelin/pwcProject/porsche_analyzed.pkl') """
-
 # Load corresponding dataset based on selection
 if dataset_option == "Audi":
     df = load_data('data/audi_analyzed.pkl')
