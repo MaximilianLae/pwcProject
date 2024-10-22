@@ -6,7 +6,7 @@ from PIL import Image
 
 # Load PwC logo
 def load_logo():
-    return Image.open("/Logo-pwc.png")
+    return Image.open("Logo-pwc.png")
 
 # Load the pkl files from the specified directory
 @st.cache_data
