@@ -153,3 +153,7 @@ with tab1:
 with tab2:
     st.subheader(f"Average Sentiment Score for {dataset_option}")
     plot_average_sentiment(df, events)
+
+
+
+#hhhh
