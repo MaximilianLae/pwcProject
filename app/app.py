@@ -1,7 +1,12 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import pickle
+from PIL import Image
+
+# Load PwC logo
+def load_logo():
+    return Image.open("/home/maximilian.laechelin/pwcProject/Logo-pwc.png")
 
 # Load the pkl files from the specified directory
 @st.cache_data
@@ -13,75 +18,85 @@ def load_data(filename):
 def parse_events(events):
     return {pd.to_datetime(date): label for date, label in events.items()}
 
-# Updated plot_neutral_negative_counts function
+# Plot neutral and negative comment counts using Plotly
 def plot_neutral_negative_counts(df, events):
     df['comment_date'] = pd.to_datetime(df['comment_date'])
     
-    # Count neutral and negative comments by month
     neutral_counts = df[df['bertweet_sentiment_class'] == 'neutral'].set_index('comment_date').resample('M').size()
     negative_counts = df[df['bertweet_sentiment_class'] == 'negative'].set_index('comment_date').resample('M').size()
 
-    # Create figure and axis objects
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(neutral_counts.index, neutral_counts, label='Neutral Comments', marker='o', color='blue')
-    ax.plot(negative_counts.index, negative_counts, label='Negative Comments', marker='x', color='red')
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=neutral_counts.index, y=neutral_counts, mode='lines+markers', name='Neutral Comments', line=dict(color='blue')))
+    fig.add_trace(go.Scatter(x=negative_counts.index, y=negative_counts, mode='lines+markers', name='Negative Comments', line=dict(color='red')))
 
-    # Add vertical lines for events
-    for event_date, event_label in events.items():
-        ax.axvline(x=event_date, color='gray', linestyle='--', lw=2)
-        ax.text(event_date + pd.Timedelta(days=10), plt.ylim()[1] * 0.9, event_label, rotation=90, verticalalignment='top', horizontalalignment='left')
+    for i, (event_date, event_label) in enumerate(events.items()):
+        fig.add_vline(x=event_date, line=dict(color='gray', dash='dash'))
+        fig.add_annotation(
+            x=event_date, 
+            y=max(neutral_counts.max(), negative_counts.max()), 
+            text=event_label, 
+            showarrow=True, 
+            arrowhead=2, 
+            ax=0, 
+            ay=-40 - (i % 2) * 20,  # Alternate annotation positioning to reduce overlap
+            bordercolor="black",
+            borderwidth=1
+        )
 
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Count')
-    ax.set_title('Monthly Neutral and Negative Comment Counts')
-    ax.legend()
-    plt.tight_layout()
+    fig.update_layout(title='Monthly Neutral and Negative Comment Counts',
+                      xaxis_title='Date',
+                      yaxis_title='Count',
+                      template='plotly_white')
+    st.plotly_chart(fig)
 
-    # Pass the figure object to st.pyplot
-    st.pyplot(fig)
-
-# Updated plot_average_sentiment function
+# Plot average sentiment score using Plotly
 def plot_average_sentiment(df, events):
     df['comment_date'] = pd.to_datetime(df['comment_date'])
     
-    # Aggregate average sentiment score per month
     monthly_bertweet_sentiment = df.set_index('comment_date').resample('M')['bertweet_sentiment_score'].mean().reset_index()
 
-    # Create figure and axis objects
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.plot(monthly_bertweet_sentiment['comment_date'], monthly_bertweet_sentiment['bertweet_sentiment_score'], label='Average BERTweet Sentiment', marker='o', color='green')
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=monthly_bertweet_sentiment['comment_date'], y=monthly_bertweet_sentiment['bertweet_sentiment_score'], mode='lines+markers', name='Average BERTweet Sentiment', line=dict(color='green')))
 
-    for event_date, event_label in events.items():
-        ax.axvline(x=event_date, color='gray', linestyle='--', lw=2)
-        ax.text(event_date + pd.Timedelta(days=10), plt.ylim()[1] * 0.9, event_label, rotation=90, verticalalignment='top', horizontalalignment='left')
+    for i, (event_date, event_label) in enumerate(events.items()):
+        fig.add_vline(x=event_date, line=dict(color='gray', dash='dash'))
+        fig.add_annotation(
+            x=event_date, 
+            y=monthly_bertweet_sentiment['bertweet_sentiment_score'].max(), 
+            text=event_label, 
+            showarrow=True, 
+            arrowhead=2, 
+            ax=0, 
+            ay=-40 - (i % 2) * 20,  # Alternate annotation positioning to reduce overlap
+            bordercolor="black",
+            borderwidth=1
+        )
 
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Average Sentiment Score')
-    ax.set_title('Monthly Average Sentiment Score (BERTweet)')
-    plt.tight_layout()
-
-    # Pass the figure object to st.pyplot
-    st.pyplot(fig)
+    fig.update_layout(title='Monthly Average Sentiment Score (BERTweet)',
+                      xaxis_title='Date',
+                      yaxis_title='Average Sentiment Score',
+                      template='plotly_white')
+    st.plotly_chart(fig)
 
 # Streamlit layout
+st.set_page_config(page_title="YouTube Comment Sentiment Analysis", page_icon=load_logo(), layout="wide")
+
+st.image(load_logo(), width=150)
 st.title("YouTube Comment Sentiment Analysis")
 
-# Dropdown to select the dataset
-dataset_option = st.selectbox(
-    "Choose a dataset to visualize:",
-    ("Audi", "Volkswagen", "Porsche", "BMW")
-)
+# Sidebar for settings
+st.sidebar.title("Settings")
+dataset_option = st.sidebar.selectbox("Choose a dataset to visualize:", ("Audi", "Volkswagen", "Porsche", "BMW"))
 
 # Load corresponding dataset based on selection
 if dataset_option == "Audi":
-    df = load_data('data/audi_analyzed.pkl')
+    df = load_data('/home/maximilian.laechelin/pwcProject/data/audi_analyzed.pkl')
 elif dataset_option == "Volkswagen":
-    df = load_data('data/volkswagen_analyzed.pkl')
+    df = load_data('/home/maximilian.laechelin/pwcProject/data/volkswagen_analyzed.pkl')
 elif dataset_option == "BMW":
-    df = load_data('data/bmw_analyzed.pkl')
+    df = load_data('/home/maximilian.laechelin/pwcProject/data/bmw_analyzed.pkl')
 elif dataset_option == "Porsche":
-    df = load_data('data/porsche_analyzed.pkl')
-
+    df = load_data('/home/maximilian.laechelin/pwcProject/data/porsche_analyzed.pkl')
 
 # Define industry events based on the selected dataset
 if dataset_option == "Audi":
@@ -121,9 +136,20 @@ elif dataset_option == "Porsche":
 # Ensure events are parsed as datetime
 events = parse_events(events)
 
-# Display the plots
-st.subheader(f"Neutral and Negative Comment Counts for {dataset_option}")
-plot_neutral_negative_counts(df, events)
+# Display KPIs
+st.subheader("Key Performance Indicators")
+col1, col2 = st.columns(2)
+with col1:
+    st.metric(label="Total Comments", value=len(df))
+with col2:
+    st.metric(label="Average Sentiment Score", value=f"{df['bertweet_sentiment_score'].mean():.2f}")
 
-st.subheader(f"Average Sentiment Score for {dataset_option}")
-plot_average_sentiment(df, events)
+# Display the plots using tabs
+tab1, tab2 = st.tabs(["Neutral/Negative Counts", "Average Sentiment Score"])
+with tab1:
+    st.subheader(f"Neutral and Negative Comment Counts for {dataset_option}")
+    plot_neutral_negative_counts(df, events)
+
+with tab2:
+    st.subheader(f"Average Sentiment Score for {dataset_option}")
+    plot_average_sentiment(df, events)
