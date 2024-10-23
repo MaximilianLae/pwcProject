@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import pickle
 from PIL import Image
-# from wordcloud import WordCloud
+from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 # Load PwC logo
@@ -186,6 +186,23 @@ def plot_trust_analysis(df, events):
     # Display the figures in Streamlit
     st.plotly_chart(fig1, key='trust_trends')
     st.plotly_chart(fig2, key='average_trust_score')
+
+    # Display 10 examples of trust and 10 examples of distrust
+    st.subheader("Examples of Trust and Distrust Comments")
+
+    # Extract 10 random examples of comments expressing trust
+    trust_examples = df[df['trust_classification'] == "This comment expresses trust in the brand"].sample(n=10, random_state=1)
+    if len(trust_examples) > 0:
+        st.markdown("### Comments Expressing Trust")
+        for _, row in trust_examples.iterrows():
+            st.markdown(f"- {row['comment_text']}")
+
+    # Extract 10 random examples of comments expressing distrust from rows 107-117
+    distrust_examples = df[df['trust_classification'] == "This comment expresses distrust towards the brand"].iloc[107:117]
+    if len(distrust_examples) > 0:
+        st.markdown("### Comments Expressing Distrust")
+        for _, row in distrust_examples.iterrows():
+            st.markdown(f"- {row['comment_text']}")
 
 # Streamlit layout
 st.set_page_config(page_title="YouTube Comment Sentiment Analysis", page_icon=load_logo(), layout="wide")
