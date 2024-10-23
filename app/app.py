@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import pickle
 from PIL import Image
-from wordcloud import WordCloud
+# from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 # Load PwC logo
