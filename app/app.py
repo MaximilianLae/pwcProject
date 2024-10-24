@@ -200,7 +200,7 @@ def plot_trust_analysis(df, events):
     # Extract 10 random examples of neutral comments
     neutral_examples = df[df['trust_classification'] == "This comment is neutral"].sample(n=10, random_state=2)
     if len(neutral_examples) > 0:
-        st.markdown("### Comments Expressing Neutral Sentiment")
+        st.markdown("### Neutral Comments")
         for _, row in neutral_examples.iterrows():
             st.markdown(f"- {row['comment_text']}")
 
